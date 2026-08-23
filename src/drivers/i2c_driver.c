@@ -53,3 +53,34 @@ void i2c1_init(void) {
 
   I2C1->CR1 |= (1 << 0); // Enable I2C1
 }
+
+void i2c1_write(uint8_t slave_addr, uint8_t reg_addr, uint8_t data) {
+  I2C1->CR1 |= (1 << 8); // Generate START condition
+
+  while (!(I2C1->SR1 & (1 << 0)))
+    ; // Wait for SB (start bit) flag
+
+  I2C1->DR = (slave_addr << 1); // Send slave address with write bit
+
+  while (!(I2C1->SR1 & (1 << 1)))
+    ; // Wait for ADDR (address sent) flag
+
+  // Clear ADDR flag by reading SR1 and SR2
+  (void)I2C1->SR1;
+  (void)I2C1->SR2;
+
+  while (!(I2C1->SR1 & (1 << 7)))
+    ; // Wait for TXE (data register empty) flag
+
+  I2C1->DR = reg_addr; // Send register address
+
+  while (!(I2C1->SR1 & (1 << 7)))
+    ; // Wait for TXE (data register empty) flag
+
+  I2C1->DR = data; // Send data
+
+  while (!(I2C1->SR1 & (1 << 2)))
+    ; // Wait for BTF (byte transfer finished) flag, after sending the last byte
+
+  I2C1->CR1 |= (1 << 9); // Generate STOP condition
+}
