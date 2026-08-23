@@ -84,3 +84,37 @@ void i2c1_write(uint8_t slave_addr, uint8_t reg_addr, uint8_t data) {
 
   I2C1->CR1 |= (1 << 9); // Generate STOP condition
 }
+
+void i2c1_write_multiple_bytes(uint8_t slave_addr, uint8_t reg_addr,
+                               uint8_t *data, uint8_t length) {
+  I2C1->CR1 |= (1 << 8); // Generate START condition
+
+  while (!(I2C1->SR1 & (1 << 0)))
+    ; // Wait for SB (start bit) flag
+
+  I2C1->DR = (slave_addr << 1); // Send slave address with write bit
+
+  while (!(I2C1->SR1 & (1 << 1)))
+    ; // Wait for ADDR (address sent) flag
+
+  // Clear ADDR flag by reading SR1 and SR2
+  (void)I2C1->SR1;
+  (void)I2C1->SR2;
+
+  while (!(I2C1->SR1 & (1 << 7)))
+    ; // Wait for TXE (data register empty) flag
+
+  I2C1->DR = reg_addr; // Send register address
+
+  for (uint8_t i = 0; i < length; i++) {
+    while (!(I2C1->SR1 & (1 << 7)))
+      ; // Wait for TXE (data register empty) flag
+
+    I2C1->DR = data[i]; // Send data byte
+  }
+
+  while (!(I2C1->SR1 & (1 << 2)))
+    ; // Wait for BTF (byte transfer finished) flag, after sending the last byte
+
+  I2C1->CR1 |= (1 << 9); // Generate STOP condition
+}
