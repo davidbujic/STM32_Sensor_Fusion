@@ -118,3 +118,51 @@ void i2c1_write_multiple_bytes(uint8_t slave_addr, uint8_t reg_addr,
 
   I2C1->CR1 |= (1 << 9); // Generate STOP condition
 }
+
+uint8_t i2c1_read(uint8_t slave_addr, uint8_t reg_addr) {
+  I2C1->CR1 |= (1 << 8); // Generate START condition
+
+  while (!(I2C1->SR1 & (1 << 0)))
+    ; // Wait for SB (start bit) flag
+
+  I2C1->DR = (slave_addr << 1); // Send slave address with write bit
+
+  while (!(I2C1->SR1 & (1 << 1)))
+    ; // Wait for ADDR (address sent) flag
+
+  // Clear ADDR flag by reading SR1 and SR2
+  (void)I2C1->SR1;
+  (void)I2C1->SR2;
+
+  while (!(I2C1->SR1 & (1 << 7)))
+    ; // Wait for TXE (data register empty) flag
+
+  I2C1->DR = reg_addr; // Send register address
+
+  while (!(I2C1->SR1 & (1 << 2)))
+    ; // Wait for BTF (byte transfer finished) flag
+
+  I2C1->CR1 |= (1 << 8); // Generate repeated START condition
+
+  while (!(I2C1->SR1 & (1 << 0)))
+    ; // Wait for SB (start bit) flag
+
+  I2C1->DR = (slave_addr << 1) | 0x01; // Send slave address with read bit
+
+  while (!(I2C1->SR1 & (1 << 1)))
+    ; // Wait for ADDR (address sent) flag
+
+  I2C1->CR1 &= ~(1 << 10); // Clear ACK bit, so that NACK is sent immediately
+                           // after the next byte is received
+
+  I2C1->CR1 |= (1 << 9); // Generate STOP condition
+
+  // Clear ADDR flag by reading SR1 and SR2
+  (void)I2C1->SR1;
+  (void)I2C1->SR2;
+
+  while (!(I2C1->SR1 & (1 << 6)))
+    ; // Wait for RXNE (data register not empty) flag
+
+  return I2C1->DR; // Read and return the received data
+}
