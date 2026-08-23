@@ -1,0 +1,58 @@
+# ---- Build output ------------------------------------------------------------
+build/
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.list
+*.lst
+*.su
+
+CMSIS/
+
+# ---- macOS ---------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# ---- VS Code ---------------------------------------------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Cortex-Debug / OpenOCD / GDB artifacts sometimes dropped alongside a project
+.gdb_history
+gdb.txt
+*.log
+
+# ---- Renode ---------------------------------------------------------------------
+*.resc.bak
+renode-peripherals/
+*.robot.output.xml
+*.robot.report.html
+*.robot.log.html
+
+# ---- Editor / OS misc ---------------------------------------------------------------------
+*~
+*.swp
+*.swo
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ---- Toolchain-local config (machine-specific paths, don't share) -------------
+.env
+*.local
