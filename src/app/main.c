@@ -2,6 +2,7 @@
 #include "board_config.h"
 #include "i2c_driver.h"
 #include "stm32f4xx.h"
+#include "uart_driver.h"
 #include <stdint.h>
 
 void gpio_led_init(void) {
@@ -21,16 +22,20 @@ void gpio_led_init(void) {
 
 int main(void) {
   gpio_led_init(); // Initialize GPIO for onboard LEDs
+  uart2_init();    // Initialize UART for serial communication
   i2c1_init();     // Initialize I2C1 for MPU6050 communication
 
+  uart2_write_string("Starting MPU6050 initialization...\r\n");
   uint8_t mpu6050_status = mpu6050_init(); // Get MPU6050 initialization status
 
   if (mpu6050_status) {
     GPIOD->ODR |= (1 << USER_LED_GREEN_PIN); // Turn on green LED for success
     GPIOD->ODR &= ~(1 << USER_LED_RED_PIN);  // Turn off red LED
+    uart2_write_string("MPU6050 init: SUCCESS\r\n");
   } else {
     GPIOD->ODR |= (1 << USER_LED_RED_PIN);    // Turn on red LED for failure
     GPIOD->ODR &= ~(1 << USER_LED_GREEN_PIN); // Turn off green LED
+    uart2_write_string("MPU6050 init: FAILURE\r\n");
   }
 
   while (1) {
