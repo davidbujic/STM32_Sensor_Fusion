@@ -60,11 +60,7 @@ STM32_Sensor_Fusion/
 │   │   └── accel_mpu6050.c / .h        # MPU6050 register-level driver
 │   └── fusion/
 │       └── complementary_filter.c / .h # Accelerometer/gyro fusion math
-├── CMSIS/                               # ARM + ST headers/sources
-├── STM32F407Discovery                  # Reference manual + datasheet
-└── renode/
-    └── mpu6050_stub.repl                # Non-working I2C slave stub, kept
-                                          # for documentation (see Limitations)
+└── STM32F407Discovery                  # Reference manual + datasheet
 ```
 
 ## Design decisions
